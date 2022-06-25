@@ -1,3 +1,3 @@
 # BigDataProject
 
-Contains results of all experiments for Big Data Project
+Contains all experimental results for Big Data Project
