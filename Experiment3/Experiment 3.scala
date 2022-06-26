@@ -14,7 +14,7 @@ object RUBigDataApp {
   def main(args: Array[String]) {
 //Operations on 60/640 WARC files
 val warcfile = s"hdfs:///single-warc-segment/CC-MAIN-20210410105831-20210410135831-00[0-5][0-9]0.warc.gz"
-//Operations on all 640 WARC files
+//Operations on all 640 WARC files, will run this code if time permits
 //val warcfile = s"hdfs:///single-warc-segment/*.warc.gz"
 
 val sparkConf = new SparkConf()
