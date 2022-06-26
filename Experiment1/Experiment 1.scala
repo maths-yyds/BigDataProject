@@ -12,6 +12,54 @@ import java.net.URI
 
 object RUBigDataApp {
   def main(args: Array[String]) {
+val warcfile = s"file:///opt/hadoop/rubigdata/movie.warc.gz"
 
+val sparkConf = new SparkConf()
+                    .setAppName("RUBigDataApp")
+                    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+                    .registerKryoClasses(Array(classOf[WarcRecord]))
+
+implicit val sparkSession = SparkSession.builder().config(sparkConf).getOrCreate()
+
+val sc = sparkSession.sparkContext
+
+val warcs = sc.newAPIHadoopFile(
+            warcfile,
+            classOf[WarcGzInputFormat],             
+            classOf[NullWritable],                 
+            classOf[WarcWritable]                  
+    )
+
+val wb = warcs.map{wr => wr._2.getRecord().getHttpStringBody()}.
+               map{wb => {
+                val d = Jsoup.parse(wb)
+                val t = d.title()
+                val links = d.select("div.lister a").asScala
+                links.map(l => (l.text,l.attr("title"),t)).filter(x => x._1 != "").toIterator
+                }
+            }.
+            flatMap(identity)
+
+val dir = wb.map(x => x._2.split(", ")(0)).map(x => (x,1)).reduceByKey((A,B) => A+B).map(x => (x._2, x._1)).sortByKey(false)
+
+dir.take(250).foreach(y => println(y))
+
+val rating = warcs.map{wr => wr._2.getRecord().getHttpStringBody()}.
+                   map{wb => ({
+                    val d = Jsoup.parse(wb)
+                    val t = d.title()
+                    val links = d.select("td").asScala
+                    links.filter(_.attr("class") == "titleColumn").
+                    map(l => l.text).toIterator
+                    },
+                    {
+                    val d = Jsoup.parse(wb)
+                    val t = d.title()
+                    val links = d.select("td strong").asScala
+                    links.map(l => l.attr("title")).toIterator
+                    })
+                }.flatMap(x => x._1.zip(x._2))
+
+rating.take(250).foreach(println)
   }
 }
