@@ -12,17 +12,17 @@ import java.net.URI
 
 object RUBigDataApp {
   def main(args: Array[String]) {
+//Operations on 60/640 WARC files
 val warcfile = s"hdfs:///single-warc-segment/CC-MAIN-20210410105831-20210410135831-00[0-5][0-9]0.warc.gz"
+//Operations on all 640 WARC files
+//val warcfile = s"hdfs:///single-warc-segment/*.warc.gz"
 
 val sparkConf = new SparkConf()
                     .setAppName("RUBigDataApp")
                     .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
                     .registerKryoClasses(Array(classOf[WarcRecord]))
-
 implicit val sparkSession = SparkSession.builder().config(sparkConf).getOrCreate()
-
 val sc = sparkSession.sparkContext
-
 val warcs = sc.newAPIHadoopFile(
             warcfile,
             classOf[WarcGzInputFormat],             // InputFormat
@@ -30,6 +30,7 @@ val warcs = sc.newAPIHadoopFile(
             classOf[WarcWritable]                   // Value
     )
 
+//Codes for counting imcoming links, result in Result 7.txt on GitHub
 val wb = warcs.map{ wr => wr._2.getRecord().getHttpStringBody()}.
                 map{ wb => {
                     val d = Jsoup.parse(wb)
@@ -42,8 +43,7 @@ val wb = warcs.map{ wr => wr._2.getRecord().getHttpStringBody()}.
                     filter(x => x!=null).
                     map(x => (x,1)).toIterator
                     }
-                }.flatMap(identity)
-                
+                }.flatMap(identity)         
 wb.reduceByKey((A,B) => A+B).map(x => (x._2, x._1)).sortByKey(false).take(200).foreach(println)
   }
 }
