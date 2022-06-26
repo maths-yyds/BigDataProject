@@ -31,7 +31,7 @@ val warcs = sc.newAPIHadoopFile(
     )
 
 //Codes for counting imcoming links, result in Result 7.txt on GitHub
-val wb = warcs.map{ wr => wr._2.getRecord().getHttpStringBody()}.
+val link = warcs.map{ wr => wr._2.getRecord().getHttpStringBody()}.
                 map{ wb => {
                     val d = Jsoup.parse(wb)
                     val t = d.title()
@@ -44,6 +44,6 @@ val wb = warcs.map{ wr => wr._2.getRecord().getHttpStringBody()}.
                     map(x => (x,1)).toIterator
                     }
                 }.flatMap(identity)         
-wb.reduceByKey((A,B) => A+B).map(x => (x._2, x._1)).sortByKey(false).take(200).foreach(println)
+link.reduceByKey((A,B) => A+B).map(x => (x._2, x._1)).sortByKey(false).take(200).foreach(println)
   }
 }
