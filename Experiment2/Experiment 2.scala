@@ -12,7 +12,7 @@ import java.net.URI
 
 object RUBigDataApp {
   def main(args: Array[String]) {
-val warcfile = s"file:///opt/hadoop/rubigdata/CC-MAIN-20210411085610-20210411115610-00465.warc.gz"
+val warcfile = s"hdfs:///cc-crawl/segments/1618038061820.19/warc/CC-MAIN-20210411085610-20210411115610-00465.warc.gz"
 val sparkConf = new SparkConf()
                     .setAppName("RUBigDataApp")
                     .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
