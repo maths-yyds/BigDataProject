@@ -26,7 +26,7 @@ val warcs = sc.newAPIHadoopFile(
             classOf[WarcWritable]                  
     )
 
-//Code for counting directors, result in Result 1.txt on GitHub
+//Codes for counting directors, result in Result 1.txt on GitHub
 val wb = warcs.map{wr => wr._2.getRecord().getHttpStringBody()}.
                map{wb => {
                 val d = Jsoup.parse(wb)
@@ -39,7 +39,7 @@ val wb = warcs.map{wr => wr._2.getRecord().getHttpStringBody()}.
 val dir = wb.map(x => x._2.split(", ")(0)).map(x => (x,1)).reduceByKey((A,B) => A+B).map(x => (x._2, x._1)).sortByKey(false)
 dir.take(250).foreach(y => println(y))
 
-//Code for analyzing movie ratings, result in Result 2.txt on GitHub
+//Codes for analyzing movie ratings, result in Result 2.txt on GitHub
 val rating = warcs.map{wr => wr._2.getRecord().getHttpStringBody()}.
                    map{wb => ({
                     val d = Jsoup.parse(wb)
